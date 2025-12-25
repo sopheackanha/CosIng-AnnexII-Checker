@@ -2,6 +2,7 @@ import csv
 import re
 from django.core.management.base import BaseCommand
 from analyzer.models import ProhibitedIngredient
+from analyzer.services.normalizer import normalize_name
 
 
 class Command(BaseCommand):
@@ -26,10 +27,8 @@ class Command(BaseCommand):
         )
 
     def normalize_name(self, name: str) -> str:
-        name = name.lower()
-        name = re.sub(r'\([^)]*\)', '', name)   # remove (INN), etc.
-        name = re.sub(r'[^a-z0-9\s-]', '', name)
-        return name.strip()
+        # Delegate to shared normalizer for consistency
+        return normalize_name(name)
 
     def load_csv(self, file_path):
         with open(file_path, 'r', encoding='utf-8') as f:

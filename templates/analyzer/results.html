@@ -1,0 +1,133 @@
+{% extends 'analyzer/base.html' %}
+
+{% block title %}Analysis Result #{{ analysis.id }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>📊 Analysis Results</h2>
+            <a href="{% url 'index' %}" class="btn btn-outline-primary">← New Analysis</a>
+        </div>
+
+        <!-- Summary Card -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h3 class="text-primary">{{ summary.safe|add:summary.warnings|add:summary.prohibited }}</h3>
+                        <small class="text-muted">Total Ingredients</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="text-danger">{{ summary.prohibited }}</h3>
+                        <small class="text-muted">Prohibited</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="text-warning">{{ summary.warnings }}</h3>
+                        <small class="text-muted">Warnings</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="text-success">{{ summary.safe }}</h3>
+                        <small class="text-muted">Safe</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <span class="status-badge status-{{ analysis.overall_status }}">
+                        {{ analysis.get_result_summary }}
+                    </span>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            Analysis #{{ analysis.id }} | 
+                            {{ analysis.created_at|date:"Y-m-d H:i" }} | 
+                            {{ analysis.analysis_duration_ms }}ms
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prohibited Ingredients -->
+        {% if prohibited %}
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">⛔ Prohibited Ingredients ({{ prohibited|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% for item in prohibited %}
+                <div class="ingredient-item ingredient-prohibited">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>{{ item.ingredient }}</strong>
+                            {% if item.matched_name and item.matched_name != item.ingredient %}
+                            <br><small class="text-muted">Matched: {{ item.matched_name }}</small>
+                            {% endif %}
+                            {% if item.regulation %}
+                            <br><span class="badge bg-danger">{{ item.regulation }}</span>
+                            {% endif %}
+                            {% if item.is_cmr %}
+                            <span class="badge bg-dark">CMR</span>
+                            {% endif %}
+                        </div>
+                        <span class="badge bg-danger">{{ item.confidence }}% match</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Warning Ingredients -->
+        {% if warnings %}
+        <div class="card mb-4">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0">⚠️ Warnings ({{ warnings|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% for item in warnings %}
+                <div class="ingredient-item ingredient-warning">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>{{ item.ingredient }}</strong>
+                            {% if item.matched_name %}
+                            <br><small class="text-muted">Similar to: {{ item.matched_name }}</small>
+                            {% endif %}
+                            {% if item.regulation %}
+                            <br><span class="badge bg-warning text-dark">{{ item.regulation }}</span>
+                            {% endif %}
+                        </div>
+                        <span class="badge bg-warning text-dark">{{ item.confidence }}% match</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Safe Ingredients -->
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">✅ Safe Ingredients ({{ safe|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% for item in safe %}
+                <div class="ingredient-item ingredient-safe">
+                    <strong>{{ item.ingredient }}</strong>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Original Input -->
+        <div class="card mt-4">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">📋 Original Input</h6>
+            </div>
+            <div class="card-body">
+                <pre class="mb-0" style="white-space: pre-wrap;">{{ analysis.input_text }}</pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

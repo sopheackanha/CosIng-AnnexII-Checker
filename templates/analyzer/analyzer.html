@@ -1,0 +1,70 @@
+{% extends 'analyzer/base.html' %}
+
+{% block title %}Home - Cosmetic Ingredient Checker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h1 class="display-4">🧪 Ingredient Analyzer</h1>
+            <p class="lead text-muted">Check cosmetic ingredients against EU Annex II prohibited substances</p>
+        </div>
+
+        <!-- Stats Card -->
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <p class="mb-0">
+                    <strong>{{ recent_count }}</strong> analyses performed
+                    {% if recent_count > 0 %}
+                    | <a href="{% url 'history' %}">View History →</a>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Input Form -->
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">📝 Enter Ingredient List</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'index' %}">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        {{ form.ingredient_text.label_tag }}
+                        {{ form.ingredient_text }}
+                        {% if form.ingredient_text.help_text %}
+                        <div class="form-text">{{ form.ingredient_text.help_text }}</div>
+                        {% endif %}
+                        {% if form.ingredient_text.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.ingredient_text.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            🔍 Analyze Ingredients
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6>ℹ️ How it works:</h6>
+                <ol class="mb-0">
+                    <li>Paste your ingredient list (comma-separated)</li>
+                    <li>We check each ingredient against EU Annex II</li>
+                    <li>Get instant results with safety ratings</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
