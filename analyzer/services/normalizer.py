@@ -18,7 +18,7 @@ class IngredientNormalizer:
         'ascorbic acid': 'vitamin c',
         'retinol': 'vitamin a',
         'sodium chloride': 'salt',
-        # Add more as needed
+        #etc.
     }
     
     # Safe ingredients (never flag)

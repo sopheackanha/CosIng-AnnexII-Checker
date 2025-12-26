@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 import re
 
 class IngredientAnalysisForm(forms.Form):
-    """Form for text-based ingredient analysis"""
+    """Form for text-based or image-based ingredient analysis"""
     
     ingredient_text = forms.CharField(
         widget=forms.Textarea(attrs={
@@ -13,21 +13,49 @@ class IngredientAnalysisForm(forms.Form):
             'maxlength': '10000'
         }),
         max_length=10000,
-        required=True,
+        required=False,
         label='Ingredient List',
-        help_text='Paste your ingredient list here (separated by commas)'
     )
+    
+    image_file = forms.ImageField(
+        required=False,
+        label='Upload Image',
+        help_text='Upload an image containing ingredients (JPG, PNG)',
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': 'image/*'
+        })
+    )
+    
+    def clean(self):
+        """Validate that either text or image is provided"""
+        cleaned_data = super().clean()
+        text = cleaned_data.get('ingredient_text')
+        image = cleaned_data.get('image_file')
+        
+        # At least one input is required
+        if not text and not image:
+            raise ValidationError("Please provide either ingredient text or upload an image.")
+        
+        # Can't have both
+        if text and image:
+            raise ValidationError("Please provide either text or image, not both.")
+        
+        return cleaned_data
     
     def clean_ingredient_text(self):
         """Validate and sanitize ingredient text"""
         text = self.cleaned_data.get('ingredient_text', '')
         
+        if not text:
+            return text
+        
         # Remove leading/trailing whitespace
         text = text.strip()
         
-        # Check for empty input
+        # Check for empty input after strip
         if not text:
-            raise ValidationError("Please enter at least one ingredient.")
+            return text
         
         # Check minimum length (at least one character after comma split)
         if len(text) < 2:
