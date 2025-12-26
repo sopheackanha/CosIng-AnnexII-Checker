@@ -21,21 +21,6 @@ A Django-based tool to check cosmetic product ingredient lists against the EU Co
 - Redis as Celery broker/result and application cache
 - SQLite (dev) / PostgreSQL (prod) for persistence
 
-```mermaid
-flowchart TD
-  A[User] -->|Paste text / Upload image| B[Analyzer View]
-  B -->|Text| C[Engine.analyze]
-  B -->|Image| D[OCR extract_text]
-  D --> E[Create Analysis (pending)]
-  E --> F[Celery Task run_analysis_task]
-  F --> G[Engine.analyze]
-  G --> H[Matcher (Redis cache)]
-  H --> I[Summary + Result JSON]
-  I --> J[Persist Analysis]
-  J --> K[Results Page]
-  K -->|Poll /api/analysis-status| E
-```
-
 ### Matching Logic
 - Exact match → `PROHIBITED` (with regulation, `is_cmr`, `cmr_note`)
 - Fuzzy match ≥90% → `WARNING` (<98) or `PROHIBITED` (≥98)
