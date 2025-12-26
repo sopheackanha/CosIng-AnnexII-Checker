@@ -1,0 +1,141 @@
+{% extends 'analyzer/base.html' %}
+
+{% block title %}Home - Cosmetic Ingredient Checker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h1 class="display-4">🧪 Ingredient Analyzer</h1>
+            <p class="lead text-muted">Check cosmetic ingredients against EU Annex II prohibited substances</p>
+        </div>
+
+        <!-- Stats Card -->
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <p class="mb-0">
+                    <strong>{{ recent_count }}</strong> analyses performed
+                    {% if recent_count > 0 %}
+                    | <a href="{% url 'history' %}">View History →</a>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Input Form -->
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">📝 Enter Ingredient List</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'index' %}" enctype="multipart/form-data" id="analysisForm">
+                    {% csrf_token %}
+                    
+                    <!-- Tab Navigation -->
+                    <ul class="nav nav-tabs mb-3" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-input" type="button" role="tab">
+                                📝 Text Input
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {% if not ocr_available %}disabled{% endif %}" id="image-tab" data-bs-toggle="tab" data-bs-target="#image-input" type="button" role="tab" {% if not ocr_available %}disabled title="OCR not available"{% endif %}>
+                                📷 Image Upload
+                                {% if not ocr_available %}<small class="text-muted">(unavailable)</small>{% endif %}
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <!-- Tab Content -->
+                    <div class="tab-content">
+                        <!-- Text Input Tab -->
+                        <div class="tab-pane fade show active" id="text-input" role="tabpanel">
+                            <div class="mb-3">
+                                {{ form.ingredient_text.label_tag }}
+                                {{ form.ingredient_text }}
+                                {% if form.ingredient_text.help_text %}
+                                <div class="form-text">{{ form.ingredient_text.help_text }}</div>
+                                {% endif %}
+                                {% if form.ingredient_text.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.ingredient_text.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Image Upload Tab -->
+                        <div class="tab-pane fade" id="image-input" role="tabpanel">
+                            <div class="mb-3">
+                                {{ form.image_file.label_tag }}
+                                {{ form.image_file }}
+                                {% if form.image_file.help_text %}
+                                <div class="form-text">{{ form.image_file.help_text }}</div>
+                                {% endif %}
+                                {% if form.image_file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.image_file.errors }}
+                                </div>
+                                {% endif %}
+                                {% if ocr_available %}
+                                <div class="alert alert-info mt-2">
+                                    <small>
+                                        Upload an image of ingredient labels.
+                                        This may take a few moments to process.
+                                    </small>
+                                </div>
+                                {% else %}
+                                <div class="alert alert-warning mt-2">
+                                    <small>
+                                        OCR service is not available. Please use text input instead.
+                                    </small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Errors -->
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                            Analyze Ingredients
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+            <script>
+            // Prevent double submissions by disabling the button after first submit
+            (function() {
+                const form = document.getElementById('analysisForm');
+                const submitBtn = document.getElementById('submitBtn');
+                if (!form || !submitBtn) return;
+                form.addEventListener('submit', function() {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Processing...';
+                });
+            })();
+            </script>
+
+        <!-- Info Card -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6>ℹ️ How it works:</h6>
+                <ol class="mb-0">
+                    <li>Paste text or upload the image of your ingredient list</li>
+                    <li>We check each ingredient against EU Annex II</li>
+                    <li>Get instant results :3</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

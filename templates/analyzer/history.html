@@ -1,0 +1,99 @@
+{% extends 'analyzer/base.html' %}
+
+{% block title %}Analysis History{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">📜 Analysis History</h2>
+
+        <!-- Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3>{{ total_analyses }}</h3>
+                        <small class="text-muted">Total Analyses</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 class="text-danger">{{ total_prohibited }}</h3>
+                        <small class="text-muted">With Prohibited</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 class="text-warning">{{ total_warnings }}</h3>
+                        <small class="text-muted">With Warnings</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 class="text-success">{{ total_safe }}</h3>
+                        <small class="text-muted">All Safe</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Records Table -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Input Type</th>
+                        <th>Status</th>
+                        <th>Summary</th>
+                        <th>Duration (ms)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for analysis in analyses %}
+                    <tr>
+                        <td>{{ analysis.created_at|date:"M d, Y H:i" }}</td>
+                        <td>
+                            {% if analysis.input_source == 'text' %}
+                                <span class="badge bg-info">Text</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Image</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if analysis.overall_status == 'prohibited' %}
+                                <span class="badge bg-danger">Prohibited</span>
+                            {% elif analysis.overall_status == 'warning' %}
+                                <span class="badge bg-warning">Warning</span>
+                            {% else %}
+                                <span class="badge bg-success">Safe</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <small>{{ analysis.get_result_summary }}</small>
+                        </td>
+                        <td>{{ analysis.analysis_duration_ms }}</td>
+                        <td>
+                            <a href="{% url 'analysis_result' analysis.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            No analyses yet. <a href="{% url 'index' %}">Start analyzing</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
