@@ -1,6 +1,6 @@
-# COSING Ingredient Checker
+# CosIng Compliance Checker
 
-A Django-based tool to check cosmetic product ingredient lists against the EU Cosmetics Regulation (EC) 1223/2009 Annex II (prohibited substances). Supports text input and label image OCR, asynchronous processing, caching, and a clean UI for results and history.
+A Django-based tool to check cosmetic product ingredient lists against the EU Cosmetics Regulation Annex II (prohibited substances). Supports text input and label image OCR, asynchronous processing, caching, and a clean UI for results and history.
 
 ## Features
 - Ingredient compliance check against Annex II
